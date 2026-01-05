@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Nau Gitti – Playable</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+}
+
+#board{
+  width:320px;
+  height:520px;
+  margin:20px auto;
+  position:relative;
+}
+
+.point{
+  width:20px;
+  height:20px;
+  background:#94a3b8;
+  border-radius:50%;
+  position:absolute;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+}
+
+.black{ background:black; }
+.white{ background:white; }
+.selected{ outline:3px solid yellow; }
+
+#line{
+  position:absolute;
+  background:#64748b;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎮 Nau Gitti (Playable)</h2>
+<p id="status">Turn: Black</p>
+
+<div id="board"></div>
+
+<script>
+const board = document.getElementById("board");
+const statusText = document.getElementById("status");
+
+let turn = "black";
+let selected = null;
+let placed = { black:0, white:0 };
+const MAX = 9;
+
+const points = [
+ {x:40,y:40},{x:160,y:40},{x:280,y:40},
+ {x:80,y:120},{x:160,y:120},{x:240,y:120},
+ {x:120,y:200},{x:160,y:200},{x:200,y:200},
+ {x:120,y:320},{x:160,y:320},{x:200,y:320},
+ {x:80,y:400},{x:160,y:400},{x:240,y:400},
+ {x:40,y:480},{x:160,y:480},{x:280,y:480}
+];
+
+// allowed moves
+const connections = {
+ 0:[1,3],1:[0,2,4],2:[1,5],
+ 3:[0,4,6],4:[1,3,5,7],5:[2,4,8],
+ 6:[3,7],7:[4,6,8],8:[5,7],
+ 9:[10,12],10:[9,11,13],11:[10,14],
+ 12:[9,13,15],13:[10,12,14,16],14:[11,13,17],
+ 15:[12,16],16:[13,15,17],17:[14,16]
+};
+
+const state = Array(18).fill(null);
+const nodes = [];
+
+// draw points
+points.forEach((p,i)=>{
+ let d = document.createElement("div");
+ d.className="point";
+ d.style.left=p.x+"px";
+ d.style.top=p.y+"px";
+ d.onclick=()=>handleClick(i);
+ board.appendChild(d);
+ nodes.push(d);
+});
+
+function handleClick(i){
+ // Placement phase
+ if(state[i]===null && placed[turn] < MAX){
+   state[i]=turn;
+   nodes[i].classList.add(turn);
+   placed[turn]++;
+   switchTurn();
+   return;
+ }
+
+ // Select own stone
+ if(state[i]===turn){
+   clearSelection();
+   selected=i;
+   nodes[i].classList.add("selected");
+   return;
+ }
+
+ // Move phase
+ if(selected!==null && state[i]===null){
+   if(connections[selected]?.includes(i)){
+     state[selected]=null;
+     nodes[selected].className="point";
+     state[i]=turn;
+     nodes[i].classList.add("point",turn);
+     clearSelection();
+     switchTurn();
+   }
+ }
+}
+
+function clearSelection(){
+ if(selected!==null){
+   nodes[selected].classList.remove("selected");
+   selected=null;
+ }
+}
+
+function switchTurn(){
+ turn = turn==="black" ? "white":"black";
+ statusText.innerText="Turn: "+turn.charAt(0).toUpperCase()+turn.slice(1);
+}
+</script>
+
+</body>
+</html>
