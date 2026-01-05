@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nau Gitti – Playable</title>
 
 <style>
@@ -46,6 +47,9 @@ body{
 <p id="status">Turn: Black</p>
 
 <div id="board"></div>
+<div style="margin:12px;">
+  <button id="reset">Reset</button>
+</div>
 
 <script>
 const board = document.getElementById("board");
@@ -93,7 +97,7 @@ function handleClick(i){
  // Placement phase
  if(state[i]===null && placed[turn] < MAX){
    state[i]=turn;
-   nodes[i].classList.add(turn);
+   nodes[i].className = "point " + turn;
    placed[turn]++;
    switchTurn();
    return;
@@ -111,9 +115,9 @@ function handleClick(i){
  if(selected!==null && state[i]===null){
    if(connections[selected]?.includes(i)){
      state[selected]=null;
-     nodes[selected].className="point";
-     state[i]=turn;
-     nodes[i].classList.add("point",turn);
+      nodes[selected].className = "point";
+      state[i]=turn;
+      nodes[i].className = "point " + turn;
      clearSelection();
      switchTurn();
    }
@@ -129,8 +133,20 @@ function clearSelection(){
 
 function switchTurn(){
  turn = turn==="black" ? "white":"black";
- statusText.innerText="Turn: "+turn.charAt(0).toUpperCase()+turn.slice(1);
+ statusText.innerText = "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1);
 }
+
+// Reset helper
+document.getElementById('reset').addEventListener('click', ()=>{
+  for(let i=0;i<state.length;i++){
+    state[i]=null;
+    nodes[i].className='point';
+  }
+  placed = { black:0, white:0 };
+  turn = 'black';
+  statusText.innerText = 'Turn: Black';
+  selected = null;
+});
 </script>
 
 </body>
